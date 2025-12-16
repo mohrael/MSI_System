@@ -30,10 +30,6 @@ def augment_image(image):
     
     return augmented_images
 
-import cv2
-import numpy as np
-from skimage.feature import hog
-
 # --- OPTIMIZED FEATURE EXTRACTION ---
 def extract_features(image):
     # 1. Resize (Standard size)
