@@ -2,7 +2,7 @@ import numpy as np
 
 UNKNOWN_ID = 6
 
-def predict_with_unknown_svm(model, feature, threshold=0.6):
+def predict_with_unknown_svm(model, feature, threshold=0.5):
     probs = model.predict_proba(feature.reshape(1, -1))[0]
     if np.max(probs) < threshold:
         return UNKNOWN_ID

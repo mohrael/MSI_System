@@ -9,26 +9,30 @@ CLASSES = ["Glass", "Paper", "Cardboard", "Plastic", "Metal", "Trash", "Unknown"
 with open('best_model.pkl', 'rb') as f:
     model, scaler, model_type = pickle.load(f)
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(0) # open camera
 
 while True:
-    ret, frame = cap.read()
-    if not ret:
+    ret, frame = cap.read() # read frame
+    if not ret: # stops if frame not read
         break
 
     h, w, _ = frame.shape
-    crop = frame[
-        int(0.2*h):int(0.8*h),
-        int(0.2*w):int(0.8*w)
+    y1 = int(0.12 * h)
+    y2 = int(0.85 * h)
+    x1 = int(0.12 * w)
+    x2 = int(0.85 * w)
+    crop = frame[  # crop center of the frame
+        int(y1):int(y2),
+        int(x1):int(x2)
     ]
 
-    feature = extract_features(crop)
-
-    feature = scaler.transform([feature])[0]
+    feature = extract_features(crop)   # HOG features + color histograms: 1D vector
+    feature = scaler.transform([feature])[0] 
 
     if model_type == 'SVM':
         probs = model.predict_proba(feature.reshape(1, -1))[0]
         conf = np.max(probs)
+    
         if np.max(probs) < 0.4:
             pred = 6
         else:
@@ -40,10 +44,21 @@ while True:
         else:
             pred = model.predict(feature.reshape(1, -1))[0]
 
+    # Draw rectangle around the crop area
+    if pred == 6:          # Unknown
+        color = (0, 0, 255)  # Red
+    else:
+        color = (0, 255, 0)  # Green
+
+    cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
+
     label = CLASSES[pred]
-    cv2.putText(frame, f"{label} ({conf:.2f})",
-                (30, 40), cv2.FONT_HERSHEY_SIMPLEX,
-                1, (0,255,0), 2)
+    
+    if model_type == 'SVM':
+        cv2.putText(frame, f"{label} ({conf:.2f})",
+                    (30, 40), cv2.FONT_HERSHEY_SIMPLEX,
+                    1, (0,255,0), 2)
+
 
     cv2.putText(frame, label, (30, 40),
                 cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2)

@@ -1,10 +1,14 @@
 import os
-import cv2
+import cv2 # Computer Vision Library
 import numpy as np
-from skimage.feature import hog
+from skimage.feature import hog  # Histogram of Oriented Gradients (feature extraction method, recognizes edges and their directions)
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 import pickle
+
+# loads images from a specified database path, applies data augmentation
+# extracts HOG and color histogram features, splits the data into training and testing sets,
+# scales the features, and saves the preprocessed data to a pickle file.
 
 Database_path = 'dataset'
 
@@ -12,8 +16,8 @@ CLASSES = ["glass", "paper", "cardboard", "plastic", "metal", "trash"]
 img_size = (128, 64) 
 
 # Data Augmentation function
+# creates 3 images from 1 image (original, flipped, rotated), 200% increase in dataset size
 def augment_image(image): 
-    # the increase 200% (3 times the original)
     # list of images: original, flipped, rotated
     augmented_images = [image]
 
@@ -30,21 +34,26 @@ def augment_image(image):
     
     return augmented_images
 
-# --- OPTIMIZED FEATURE EXTRACTION ---
+# function that converts an image into a 1D numerical vector
 def extract_features(image):
     # 1. Resize (Standard size)
-    img_resized = cv2.resize(image, img_size)
+    img_resized = cv2.resize(image, img_size)   # All images must have the same size
     
-    # 2. LIGHTWEIGHT HOG (The Speed Fix)
-    # Changed pixels_per_cell from (8,8) to (16,16)
+    # 2. LIGHTWEIGHT HOG FEATURES
     # This reduces feature count by ~85% (from ~3700 to ~500 features)
     # It removes "noise" and focuses on the main shape (cylinder vs box)
-    gray = cv2.cvtColor(img_resized, cv2.COLOR_BGR2GRAY)
-    hog_features = hog(gray, orientations=9, pixels_per_cell=(16, 16), 
-                       cells_per_block=(2, 2), block_norm='L2-Hys', transform_sqrt=True)
+    gray = cv2.cvtColor(img_resized, cv2.COLOR_BGR2GRAY)  # Convert to grayscale
+    hog_features = hog(
+        gray,
+        orientations=9,
+        pixels_per_cell=(16, 16),
+        cells_per_block=(2, 2),
+        block_norm='L2-Hys',
+        transform_sqrt=True
+    )
     
-    # 3. SPATIAL COLOR (The Accuracy Fix)
-    # Split image into Top, Middle, Bottom to find "Bottle Caps" or "Labels"
+    # 3. COLOR FEATURES
+    # Split image vertically into Top, Middle, Bottom to find "Bottle Caps" or "Labels"
     h, w, _ = img_resized.shape
     third = h // 3
     parts = [img_resized[:third, :], img_resized[third:2*third, :], img_resized[2*third:, :]]
@@ -55,7 +64,7 @@ def extract_features(image):
         # Histograms for Hue (Color) and Saturation
         hist_h = cv2.calcHist([hsv_part], [0], None, [32], [0, 180]) 
         hist_s = cv2.calcHist([hsv_part], [1], None, [32], [0, 256])
-        cv2.normalize(hist_h, hist_h)
+        cv2.normalize(hist_h, hist_h) # makes features scale-independent
         cv2.normalize(hist_s, hist_s)
         color_features.extend(hist_h.flatten())
         color_features.extend(hist_s.flatten())
@@ -102,6 +111,4 @@ x_test = scaler.transform(x_test)
 # Save preprocessed data
 with open('data_features.pkl', 'wb') as f:
     pickle.dump((x_train, x_test, y_train, y_test, scaler), f)
-# The script loads images from a specified database path, applies data augmentation (flipping and rotation),
-# extracts HOG and color histogram features, splits the data into training and testing sets,
-# scales the features, and saves the preprocessed data to a pickle file.
+
