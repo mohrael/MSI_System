@@ -12,7 +12,7 @@ from sklearn.model_selection import GridSearchCV
 with open('data_features.pkl','rb') as f:
     x_train, x_test, y_train, y_test, scaler = pickle.load(f)
 
-CLASSES = ["Glass", "Paper", "Cardboard", "Plastic", "Metal", "Trash"]
+CLASSES = ["glass", "paper", "cardboard", "plastic", "metal", "trash"]
 
 
 # Train SVM Model

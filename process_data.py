@@ -18,7 +18,6 @@ img_size = (128, 64)  # Standard image size for resizing
 # Data Augmentation function
 # creates 3 images from 1 image (original, flipped, rotated), 200% increase in dataset size
 def augment_image(image): 
-    # list of images: original, flipped, rotated
     augmented_images = [image]
 
     # Horizontal Flip
@@ -29,7 +28,10 @@ def augment_image(image):
     # Rotation
     rows, cols = image.shape[:2]
     M = cv2.getRotationMatrix2D((cols / 2, rows / 2), 15, 1) # Rotate by 15 degrees
-    rotated = cv2.warpAffine(image, M, (cols, rows)) 
+    rotated = cv2.warpAffine(
+        image, M, (cols, rows),
+        borderMode=cv2.BORDER_REFLECT
+    )
     augmented_images.append(rotated)
     
     return augmented_images
@@ -54,7 +56,7 @@ def extract_features(image):
     
     # 3. COLOR FEATURES
     # Split image vertically into Top, Middle, Bottom to find "Bottle Caps" or "Labels"
-    h, w, _ = img_resized.shape
+    h, _, _ = img_resized.shape
     third = h // 3
     parts = [img_resized[:third, :], img_resized[third:2*third, :], img_resized[2*third:, :]]
     

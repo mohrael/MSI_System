@@ -7,7 +7,7 @@ from process_data import extract_features
 # CONFIGURATION
 IMAGE_FOLDER = "test_images"   
 MODEL_PATH = "best_model.pkl"
-CLASSES = ["Glass", "Paper", "Cardboard", "Plastic", "Metal", "Trash", "Unknown"]
+CLASSES = ["glass", "paper", "cardboard", "plastic", "metal", "trash"]
 
 
 # Load trained model
