@@ -74,28 +74,55 @@ def extract_features(image):
     return np.hstack([hog_features, color_features])
 
 # Load Data
+TARGET_COUNT = 500  # target images per class
+
 def load_and_preprocess_data():
     features = []
     labels = []
 
-    for class_id,class_name in enumerate(CLASSES):
+    for class_id, class_name in enumerate(CLASSES):
         class_path = os.path.join(Database_path, class_name)
+        file_list = os.listdir(class_path)
+        print(f"Processing {class_name} ({len(file_list)} images)")
 
-        print(f"Processing class: {class_name}")
-        for file_name in os.listdir(class_path):
+        class_features = []
+        class_labels = []
+
+        # Load original images
+        for file_name in file_list:
             img_path = os.path.join(class_path, file_name)
-
-            # Read image
             img = cv2.imread(img_path)
             if img is None:
                 continue
-            # Apply data augmentation
-            augmented_images = augment_image(img)
-            for aug_img in augmented_images:
-                feature = extract_features(aug_img)
-                features.append(feature)
-                labels.append(class_id) # 0 to 5
-        
+            feat = extract_features(img)
+            class_features.append(feat)
+            class_labels.append(class_id)
+
+        # Use augmentation to reach TARGET_COUNT
+        current_count = len(class_features)
+        idx = 0
+        while current_count < TARGET_COUNT:
+            img_path = os.path.join(class_path, file_list[idx % len(file_list)])
+            img = cv2.imread(img_path)
+            if img is None:
+                idx += 1
+                continue
+
+            # augment image
+            aug_images = augment_image(img)
+            for aug_img in aug_images:
+                feat = extract_features(aug_img)
+                class_features.append(feat)
+                class_labels.append(class_id)
+                current_count += 1
+                if current_count >= TARGET_COUNT:
+                    break
+            idx += 1
+
+        # Trim if somehow exceeded
+        features.extend(class_features[:TARGET_COUNT])
+        labels.extend(class_labels[:TARGET_COUNT])
+
     X = np.array(features)
     y = np.array(labels)
     return X, y
