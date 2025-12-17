@@ -33,13 +33,13 @@ while True:
         probs = model.predict_proba(feature.reshape(1, -1))[0]
         conf = np.max(probs)
     
-        if np.max(probs) < 0.4:
+        if np.max(probs) < 0.45:
             pred = 6
         else:
             pred = np.argmax(probs)
     else:
         distances, _ = model.kneighbors(feature.reshape(1, -1))
-        if np.mean(distances) > 1.2:
+        if np.mean(distances) > 1.1:
             pred = 6
         else:
             pred = model.predict(feature.reshape(1, -1))[0]
@@ -58,10 +58,9 @@ while True:
         cv2.putText(frame, f"{label} ({conf:.2f})",
                     (30, 40), cv2.FONT_HERSHEY_SIMPLEX,
                     1, (0,255,0), 2)
-
-
-    cv2.putText(frame, label, (30, 40),
-                cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2)
+    else:
+        cv2.putText(frame, label, (30, 40),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2)
 
     cv2.imshow("MSI System", frame)
 

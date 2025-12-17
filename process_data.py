@@ -39,6 +39,21 @@ def extract_features(image):
     # 1. Resize (Standard size)
     img_resized = cv2.resize(image, img_size)   # All images must have the same size
     
+    gray = cv2.cvtColor(img_resized, cv2.COLOR_BGR2GRAY)
+
+    # # Gaussian Blur to remove noise
+    # gray = cv2.GaussianBlur(gray, (5, 5), 0)
+
+    hog_features = hog(
+        gray,
+        orientations=9,
+        pixels_per_cell=(16, 16),
+        cells_per_block=(2, 2),
+        block_norm='L2-Hys',
+        transform_sqrt=True
+    )
+
+
     # 2. LIGHTWEIGHT HOG FEATURES
     # This reduces feature count by ~85% (from ~3700 to ~500 features)
     # It removes "noise" and focuses on the main shape (cylinder vs box)
@@ -101,7 +116,10 @@ def load_and_preprocess_data():
 X, y = load_and_preprocess_data()
 
 # Split Data
-x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+x_train, x_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
 
 # Feature Scaling
 scaler = StandardScaler()

@@ -71,5 +71,5 @@ else:
     model_type = 'KNN'
 
 with open('best_model.pkl', 'wb') as f:
-    pickle.dump((best_model, scaler, model_type),f)
+    pickle.dump((best_model, scaler, model_type), f)
 
