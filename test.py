@@ -17,6 +17,7 @@ with open(MODEL_PATH, "rb") as f:
 print(f"Loaded model: {model_type}")
 
 # Loop over images
+i=1
 for file_name in os.listdir(IMAGE_FOLDER):
 
     img_path = os.path.join(IMAGE_FOLDER, file_name)
@@ -57,8 +58,8 @@ for file_name in os.listdir(IMAGE_FOLDER):
     label = CLASSES[pred]
 
     # Print Results
-    print(f"{file_name:25s} → {label:10s} | Confidence: {confidence:.2f}")
-
+    print(f"{i}- {file_name:25s} : {label:10s} | Confidence: {confidence:.2f}")
+    i+=1
     # VISUALIZATION
     cv2.putText(
         img, f"{label} ({confidence:.2f})",
