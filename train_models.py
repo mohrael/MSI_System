@@ -64,11 +64,18 @@ print("="*30)
 if svm_acc > knn_acc:
     print(f"SVM won with {svm_acc:.2%} accuracy.")
     best_model = svm_model
+    another_model = knn_model
     model_type = 'SVM'
+    another_type = 'KNN'
 else:
     print(f"KNN won with {knn_acc:.2%} accuracy.")
     best_model = knn_model
+    another_model = svm_model
     model_type = 'KNN'
+    another_type = 'SVM'
+
+with open('another_model.pkl', 'wb') as f:
+    pickle.dump((another_model, scaler, another_type), f)
 
 with open('best_model.pkl', 'wb') as f:
     pickle.dump((best_model, scaler, model_type), f)

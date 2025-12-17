@@ -47,8 +47,7 @@ for file_name in os.listdir(IMAGE_FOLDER):
     else:  # KNN
         distances, _ = model.kneighbors(feature.reshape(1, -1))
         mean_dist = np.mean(distances)
-
-        if mean_dist >  1.1:
+        if mean_dist >  1.2:
             pred = 6
             confidence = 0.0
         else:

@@ -13,7 +13,7 @@ import pickle
 Database_path = 'dataset'
 
 CLASSES = ["glass", "paper", "cardboard", "plastic", "metal", "trash"]
-img_size = (128, 64) 
+img_size = (128, 64)  # Standard image size for resizing
 
 # Data Augmentation function
 # creates 3 images from 1 image (original, flipped, rotated), 200% increase in dataset size
@@ -39,21 +39,6 @@ def extract_features(image):
     # 1. Resize (Standard size)
     img_resized = cv2.resize(image, img_size)   # All images must have the same size
     
-    gray = cv2.cvtColor(img_resized, cv2.COLOR_BGR2GRAY)
-
-    # # Gaussian Blur to remove noise
-    # gray = cv2.GaussianBlur(gray, (5, 5), 0)
-
-    hog_features = hog(
-        gray,
-        orientations=9,
-        pixels_per_cell=(16, 16),
-        cells_per_block=(2, 2),
-        block_norm='L2-Hys',
-        transform_sqrt=True
-    )
-
-
     # 2. LIGHTWEIGHT HOG FEATURES
     # This reduces feature count by ~85% (from ~3700 to ~500 features)
     # It removes "noise" and focuses on the main shape (cylinder vs box)
