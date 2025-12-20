@@ -37,7 +37,7 @@ for file_name in os.listdir(dataFilePath):
     if model_type == "SVM":
         probs = model.predict_proba(feature.reshape(1, -1))[0]
         confidence = np.max(probs)
-        if confidence < 0.4:
+        if confidence < 0.45:
             pred = 6
         else:
             pred = np.argmax(probs)
@@ -55,10 +55,10 @@ for file_name in os.listdir(dataFilePath):
     # Print Results
     print(f"{i}- {file_name:25s} : {label:10s} | Confidence: {confidence:.2f}")
     i+=1
-    # VISUALIZATION
-    cv2.putText(img, f"{label} ({confidence:.2f})",(20, 40),cv2.FONT_HERSHEY_SIMPLEX,1,(0, 255, 0) if pred != 6 else (0, 0, 255),2)
 
-    # Show image with prediction if wanted
+    # # Show image with prediction if wanted
+    # # VISUALIZATION
+    # cv2.putText(img, f"{label} ({confidence:.2f})",(20, 40),cv2.FONT_HERSHEY_SIMPLEX,1,(0, 255, 0) if pred != 6 else (0, 0, 255),2)
     # cv2.imshow("Prediction", img)
     # cv2.waitKey(0)   # Press any key for next image
 cv2.destroyAllWindows()

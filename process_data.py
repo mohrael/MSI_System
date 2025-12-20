@@ -10,7 +10,7 @@ import pickle
 Database_path = 'dataset'
 
 CLASSES = ["glass", "paper", "cardboard", "plastic", "metal", "trash"]
-img_size = (128, 64)  # Standard image size for resizing
+img_size = (128 , 64)  # Standard image size for resizing
 
 #data Augmentation function
 def augment_image(image): 
@@ -29,7 +29,7 @@ def augment_image(image):
 def extract_features(image):
     # 1. Resize 
     img_resized = cv2.resize(image, img_size)   
-    # 2. LIGHTWEIGHT HOG FEATURES
+    # 2. LIGHTWEIGHT HOG FEATURES (shape and texture)
     gray = cv2.cvtColor(img_resized, cv2.COLOR_BGR2GRAY)  # Convert to grayscale
     hog_features = hog(
         gray,
@@ -40,7 +40,7 @@ def extract_features(image):
         transform_sqrt=True
     )
     
-    # 3.cOLOR FEATURES
+    # 3.COLOR FEATURES
     h, _, _ = img_resized.shape
     third = h // 3
     parts = [img_resized[:third, :], img_resized[third:2*third, :], img_resized[2*third:, :]]
@@ -48,7 +48,7 @@ def extract_features(image):
     color_features = []
     for part in parts:
         hsv_part = cv2.cvtColor(part, cv2.COLOR_BGR2HSV)
-        #histograms for Hue (Color) and Saturation
+        #histograms for Hue (Color) and Saturation , then for every image 192 colors features, 64 per part
         hist_h = cv2.calcHist([hsv_part], [0], None, [32], [0, 180]) 
         hist_s = cv2.calcHist([hsv_part], [1], None, [32], [0, 256])
         cv2.normalize(hist_h, hist_h) # makes features scale-independent
@@ -89,7 +89,7 @@ def load_and_preprocess_data():
             img_path = os.path.join(class_path, file_list[idx % len(file_list)])
             img = cv2.imread(img_path)
             if img is None:
-                idx += 1
+                idx += 1              # to go to next image if unreadable
                 continue
 
             aug_images = augment_image(img)   #augment image
@@ -111,15 +111,15 @@ def load_and_preprocess_data():
 
 X, y = load_and_preprocess_data()
 
-#split Data to Train and Test sets
+#split Data to Train and Test sets (80-20)
 x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
 
-#Feature Scaling
+#Feature Scaling ,because features have different ranges
 scaler = StandardScaler()
 x_train = scaler.fit_transform(x_train)
 x_test = scaler.transform(x_test)
 
-# Save preprocessed data to a pickle file
+#Save preprocessed data to a pickle file
 with open('data_features.pkl', 'wb') as f:
     pickle.dump((x_train, x_test, y_train, y_test, scaler), f)
 

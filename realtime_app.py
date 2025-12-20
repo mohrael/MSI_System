@@ -33,7 +33,7 @@ while True:
         probs = model.predict_proba(feature.reshape(1, -1))[0]
         conf = np.max(probs)
     
-        if np.max(probs) < 0.45:
+        if np.max(probs) < 0.4:
             pred = 6
         else:
             pred = np.argmax(probs)
